@@ -1,0 +1,84 @@
+﻿
+@{
+}
+
+
+<h3 class="text-center mb-4">List of Orders</h3>
+
+<table class="table">
+    <thead>
+        <tr>
+            <th>Id</th>
+           <th>Client Id</th> 
+            <th>Units</th>
+            <th>Total</th>
+            <th>Payment Method</th>
+            <th>Payment Status</th>
+            <th>Date</th>
+            <th>Action</th>
+        </tr>
+    </thead>
+       
+    <tbody>
+
+
+        @foreach (Order order in ViewBag.Orders)
+        {
+            int count = 0;
+            decimal total = order.ShippingFee;
+
+            if (order.Items != null)
+            {
+                foreach (OrderItem item in order.Items)
+                {
+                    count += item.Quantity;
+                    total += item.Quantity * item.UnitPrice;
+                }
+            }
+
+            string paymentBadgeColor = "bg-danger";
+
+            if(order.PaymentStatus == "pending")
+            {
+                paymentBadgeColor = "bg-warning text-danger";
+            }
+            else if (order.PaymentStatus == "accepted")
+            {
+                paymentBadgeColor = "bg-success";
+            }
+            else if (order.PaymentStatus == "canceled")
+            {
+                paymentBadgeColor = "bg-secondary";
+            }
+
+            string orderBadgeColor = "bg-danger";
+            <tr>
+                <td>@order.Id</td>
+                <td>@order.ClientId</td>
+                <td>@count</td>
+                <td>@(total)$</td>
+               @*  <td><span class="badge rounded-pill @paymentBadgeColor"> @order.PaymentMethod</span></td> *@
+               @*  <td><span class="badge rounded-pill @orderBadgeColor"> @order.PaymentStatus</span> *@
+                <td><span class="badge rounded-pill @paymentBadgeColor"> @order.PaymentMethod</span></td>
+                <td>
+                    <form asp-controller="AdminOrders" asp-action="ChangeStatus" method="post" style="display:inline;">
+                        @Html.AntiForgeryToken()
+                        <input type="hidden" name="id" value="@order.Id" />
+                        <select name="newStatus" class="form-select form-select-sm" style="width: auto; display:inline;" onchange="this.form.submit()">
+                            <option value="pending" selected="@(order.PaymentStatus == "pending" ? "selected" : null)">Pending</option>
+                            <option value="accepted" selected="@(order.PaymentStatus == "accepted" ? "selected" : null)">Accepted</option>
+                            <option value="canceled" selected="@(order.PaymentStatus == "canceled" ? "selected" : null)">Canceled</option>
+                        </select>
+                    </form>
+
+                </td>
+
+                <td>@order.CreateTime.ToString("MM/dd/yyyy")</td>
+                <td>
+                    <a class="btn btn-primary btn-sm" asp-controller="AdminOrders" asp-action="Details" asp-route-id="@order.Id">Details</a>
+                </td>
+
+            </tr>
+        }
+    </tbody>
+</table>

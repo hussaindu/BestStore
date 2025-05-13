@@ -1,0 +1,118 @@
+﻿@model Order
+
+@{
+    string paymentBadgeColor = "bg-danger";
+
+    if (Model.PaymentStatus == "pending")
+    {
+        paymentBadgeColor = "bg-warning text-dark";
+    }
+    else if (Model.PaymentStatus == "accepted")
+    {
+        paymentBadgeColor = "bg-success";
+    }
+    else if (Model.PaymentStatus == "canceled")
+    {
+        paymentBadgeColor = "bg-secondary";
+    }
+}
+
+<h3 class="text-center mb-4">Order Details</h3>
+<a class="btn btn-link mb-3" asp-controller="AdminOrders" asp-action="Index">← Back to Orders</a>
+
+<div class="row mb-4">
+    <div class="col-lg-6">
+        <div class="border rounded p-4 h-100 shadow-sm">
+            <h4 class="mb-4">Order Information</h4>
+
+            
+
+            <div class="row mb-2 pb-2 border-bottom">
+                <div class="col fw-semibold">Order ID</div>
+                <div class="col">@Model.Id</div>
+            </div>
+
+            <div class="row mb-2 pb-2 border-bottom">
+                <div class="col fw-semibold">Delivery Address</div>
+                <div class="col">@Model.DeliveryAddress</div>
+            </div>
+
+            <div class="row mb-2 pb-2 border-bottom">
+                <div class="col fw-semibold">Payment Method</div>
+                <div class="col">@Model.PaymentMethod</div>
+            </div>
+
+            <div class="row mb-2 pb-2 border-bottom">
+                <div class="col fw-semibold">Payment Status</div>
+                <div class="col">
+                    <span class="badge rounded-pill @paymentBadgeColor">@Model.PaymentStatus</span>
+                </div>
+            </div>
+
+            <div class="row mb-2 pb-2 border-bottom">
+                <div class="col fw-semibold">Order Status</div>
+                <div class="col">
+                    <span class="badge rounded-pill bg-info text-dark">@Model.OrderStatus</span>
+                </div>
+            </div>
+
+            <div class="row mb-2">
+                <div class="col fw-semibold">Order Date</div>
+                <div class="col">@Model.CreateTime</div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<table class="table">
+    <thead>
+        <tr>
+            <th style="width: 100px">Description</th>
+            <th></th>
+            <th style="width: 100px">Units</th>
+            <th style="width: 100px">Amount</th>
+           
+        </tr>
+    </thead>
+    <tbody>
+        @{
+            decimal subtotal = 0;
+
+            foreach(var item in Model.Items)
+            {
+                subtotal += item.UnitPrice * item.Quantity;
+                <tr>
+                        <td>
+                        <img src="~/products/@item.Product.ImageFileName" width="100" />
+
+                        </td>
+                        <td>
+                            <h4>@item.Product.Name</h4>
+                            @item.Product.Category<br />
+                            @(item.UnitPrice)$
+                        </td>
+
+                        <td>@item.Quantity</td>
+                    <td>@(item.Quantity * item.UnitPrice)</td>
+                </tr>
+            }
+        }
+    </tbody>
+</table>
+
+<div class="ms-auto mb-3" style="width : 250px">
+    <div class="row">
+        <div class="col fw-bold">Subtotal:</div>
+        <div class="col text-end">@(subtotal)$</div>
+    </div>
+
+    <div class="row">
+        <div class="col fw-bold">Shipping Fee:</div>
+        <div class="col text-end">@(Model.ShippingFee)$</div>
+    </div>
+
+    <div class="row">
+        <div class="col fw-bold">Total:</div>
+        <div class="col text-end">@(subtotal + Model.ShippingFee)$</div>
+    </div>
+</div>

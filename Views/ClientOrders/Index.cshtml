@@ -1,0 +1,71 @@
+﻿@{
+}
+
+
+<h3 class="text-center mb-4">List of Orders</h3>
+<a class="btn btn-link mb-3" asp-controller="Store" asp-action="Index">← Back to Store</a>
+
+<table class="table">
+    <thead>
+        <tr>
+            <th>Id</th>
+            <th>Client Id</th>
+            <th>Units</th>
+            <th>Total</th>
+            <th>Payment Method</th>
+            <th>Payment Status</th>
+            <th>Date</th>
+            @* <th>Action</th> *@
+        </tr>
+    </thead>
+
+    <tbody>
+
+
+        @foreach (Order order in ViewBag.Orders)
+        {
+            int count = 0;
+            decimal total = order.ShippingFee;
+
+            if (order.Items != null)
+            {
+                foreach (OrderItem item in order.Items)
+                {
+                    count += item.Quantity;
+                    total += item.Quantity * item.UnitPrice;
+                }
+            }
+
+            string paymentBadgeColor = "bg-danger";
+
+            if (order.PaymentStatus == "pending")
+            {
+                paymentBadgeColor = "bg-warning text-danger";
+            }
+            else if (order.PaymentStatus == "accepted")
+            {
+                paymentBadgeColor = "bg-success";
+            }
+            else if (order.PaymentStatus == "canceled")
+            {
+                paymentBadgeColor = "bg-secondary";
+            }
+
+            string orderBadgeColor = "bg-danger";
+            <tr>
+                <td>@order.Id</td>
+                <td>@order.ClientId</td>
+                @* <td>@(order.Cient.FirstName + " " + order.Cient.LastName)</td> *@
+                <td>@count</td>
+                <td>@(total)$</td>
+                <td><span class="badge rounded-pill @paymentBadgeColor"> @order.PaymentMethod</span></td>
+                <td><span class="badge rounded-pill @orderBadgeColor"> @order.PaymentStatus</span>
+                <td>@order.CreateTime.ToString("MM/dd/yyyy")</td>
+                @* <td>
+                    <a class="btn btn-primary btn-sm" asp-controller="AdminOrders" asp-action="Details" asp-route-id="@order.Id">Details</a>
+                </td> *@
+
+            </tr>
+        }
+    </tbody>
+</table>
